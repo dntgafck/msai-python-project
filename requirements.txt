@@ -1,0 +1,23 @@
+# Core dependencies
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.0.0
+
+# NLP processing
+spacy>=3.7.0
+
+# AI/OpenAI integration
+openai>=1.0.0
+
+# Web frontend
+streamlit>=1.28.0
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# Note: Install Dutch spaCy model with:
+# python -m spacy download nl_core_news_lg 
+
+# Added genanki dependency
+genanki>=0.13.0 
