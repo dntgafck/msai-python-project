@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Dutch Language Learning API",
-    description="API for extracting unfamiliar Dutch nouns from text and generating English definitions with Dutch examples",
+    description="API for extracting unfamiliar Dutch words from text and generating English definitions with Dutch examples",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -37,7 +37,7 @@ class GenerateDefinitionsRequest(BaseModel):
     lemmas: List[str] = Field(..., description="List of Dutch lemmas to generate definitions for", min_items=1)
 
 
-class UnfamiliarNoun(BaseModel):
+class UnfamiliarWord(BaseModel):
     lemma: str = Field(..., description="Base form of the Dutch word")
     surface_forms: List[str] = Field(..., description="All surface forms found in text")
     count: int = Field(..., description="Number of occurrences")
@@ -53,8 +53,8 @@ class Definition(BaseModel):
 
 
 class ProcessTextResponse(BaseModel):
-    unfamiliar_nouns: List[UnfamiliarNoun] = Field(..., description="List of unfamiliar Dutch nouns")
-    total_count: int = Field(..., description="Total number of unfamiliar nouns found")
+    unfamiliar_words: List[UnfamiliarWord] = Field(..., description="List of unfamiliar Dutch words")
+    total_count: int = Field(..., description="Total number of unfamiliar words found")
     text_length: int = Field(..., description="Length of processed text")
 
 
@@ -108,12 +108,12 @@ async def health_check():
 @app.post("/process", response_model=ProcessTextResponse, tags=["Processing"])
 async def process_text(request: ProcessTextRequest):
     """
-    Process Dutch text and return unfamiliar noun lemmas.
+    Process Dutch text and return unfamiliar word lemmas.
     
-    This endpoint analyzes the provided Dutch text and identifies nouns that are:
+    This endpoint analyzes the provided Dutch text and identifies words that are:
     - Not spaCy stop words (built-in Dutch stopwords)
     - Not in the provided known words list
-    - Proper nouns (NOUN part of speech)
+    - Nouns, verbs, adjectives, adverbs, or proper nouns
     - At least 2 characters long
     - Valid Dutch words
     
@@ -133,17 +133,17 @@ async def process_text(request: ProcessTextRequest):
         results = nlp_service.process_text(request.text, known_words)
         
         # Convert to response format
-        unfamiliar_nouns = []
+        unfamiliar_words = []
         for result in results:
-            unfamiliar_nouns.append(UnfamiliarNoun(
+            unfamiliar_words.append(UnfamiliarWord(
                 lemma=result["lemma"],
                 surface_forms=result["surface_forms"],
                 count=result["count"]
             ))
         
         return ProcessTextResponse(
-            unfamiliar_nouns=unfamiliar_nouns,
-            total_count=len(unfamiliar_nouns),
+            unfamiliar_words=unfamiliar_words,
+            total_count=len(unfamiliar_words),
             text_length=len(request.text)
         )
         
@@ -212,7 +212,7 @@ async def root():
         },
         "language": "Dutch",
         "features": [
-            "Extract unfamiliar Dutch nouns from text",
+            "Extract unfamiliar Dutch words from text",
             "Generate English definitions for Dutch words",
             "Provide Dutch examples with English translations",
             "Include semantic categories for Dutch words"

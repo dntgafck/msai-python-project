@@ -1,5 +1,6 @@
 import os
 import spacy
+from spacy.language import Language
 from typing import List, Dict, Optional, Set
 from collections import defaultdict
 import logging
@@ -7,11 +8,11 @@ import logging
 
 class NLPService:
     """
-    Pure NLP service for extracting unfamiliar noun lemmas from Dutch text.
+    Pure NLP service for extracting unfamiliar word lemmas from Dutch text.
     
     This service is a standalone component that:
     1. Loads Dutch spaCy model
-    2. Filters Dutch nouns with custom pipeline
+    2. Filters Dutch words with custom pipeline
     3. De-duplicates and merges surface forms
     4. Returns sorted results
     
@@ -39,8 +40,8 @@ class NLPService:
             self.nlp = spacy.load(self.model_name)
             
             # Add custom pipeline component
-            if "filter_nouns" not in self.nlp.pipe_names:
-                self.nlp.add_pipe("filter_nouns", after="tagger")
+            if "filter_words" not in self.nlp.pipe_names:
+                self.nlp.add_pipe("filter_words", after="tagger")
             
             logging.info(f"Dutch spaCy model loaded successfully: {self.model_name}")
         except OSError:
@@ -50,7 +51,7 @@ class NLPService:
     
     def process_text(self, text: str, known_words: Optional[Set[str]] = None) -> List[Dict]:
         """
-        Process Dutch text and return unfamiliar noun lemmas.
+        Process Dutch text and return unfamiliar word lemmas.
         
         Args:
             text: Dutch text to process
@@ -62,23 +63,27 @@ class NLPService:
         if not text.strip():
             return []
         
+        if self.nlp is None:
+            logging.error("NLP model not loaded")
+            return []
+        
         # Process text with spaCy
         doc = self.nlp(text)
         
-        # Extract unfamiliar nouns
-        unfamiliar_nouns = self._extract_unfamiliar_nouns(doc, known_words or set())
+        # Extract unfamiliar words
+        unfamiliar_words = self._extract_unfamiliar_words(doc, known_words or set())
         
         # De-duplicate and merge surface forms
-        merged_nouns = self._merge_surface_forms(unfamiliar_nouns)
+        merged_words = self._merge_surface_forms(unfamiliar_words)
         
         # Convert to result format and sort
-        results = self._format_results(merged_nouns)
+        results = self._format_results(merged_words)
         
         return results
     
-    def _extract_unfamiliar_nouns(self, doc, known_words: Set[str]) -> Dict[str, List[str]]:
+    def _extract_unfamiliar_words(self, doc, known_words: Set[str]) -> Dict[str, List[str]]:
         """
-        Extract unfamiliar Dutch nouns from spaCy document.
+        Extract unfamiliar Dutch words from spaCy document.
         
         Args:
             doc: spaCy document
@@ -87,11 +92,11 @@ class NLPService:
         Returns:
             Dictionary mapping lemmas to surface forms
         """
-        unfamiliar_nouns = defaultdict(list)
+        unfamiliar_words = defaultdict(list)
         
         for token in doc:
-            # Filter for nouns only
-            if token.pos_ == "NOUN":
+            # Include all parts of speech (not just nouns)
+            if token.pos_ in ["NOUN", "VERB", "ADJ", "ADV", "PROPN"]:
                 lemma = token.lemma_.lower()
                 surface_form = token.text
                 
@@ -112,9 +117,9 @@ class NLPService:
                     continue
                 
                 # Add to results
-                unfamiliar_nouns[lemma].append(surface_form)
+                unfamiliar_words[lemma].append(surface_form)
         
-        return dict(unfamiliar_nouns)
+        return dict(unfamiliar_words)
     
     def _is_valid_dutch_word(self, word: str) -> bool:
         """
@@ -144,19 +149,19 @@ class NLPService:
         
         return True
     
-    def _merge_surface_forms(self, nouns: Dict[str, List[str]]) -> Dict[str, List[str]]:
+    def _merge_surface_forms(self, words: Dict[str, List[str]]) -> Dict[str, List[str]]:
         """
         De-duplicate and merge surface forms for each lemma.
         
         Args:
-            nouns: Dictionary mapping lemmas to surface forms
+            words: Dictionary mapping lemmas to surface forms
             
         Returns:
             Dictionary with deduplicated surface forms
         """
         merged = {}
         
-        for lemma, surface_forms in nouns.items():
+        for lemma, surface_forms in words.items():
             # Remove duplicates while preserving order
             unique_forms = []
             seen = set()
@@ -170,19 +175,19 @@ class NLPService:
         
         return merged
     
-    def _format_results(self, nouns: Dict[str, List[str]]) -> List[Dict]:
+    def _format_results(self, words: Dict[str, List[str]]) -> List[Dict]:
         """
         Format results and sort them.
         
         Args:
-            nouns: Dictionary mapping lemmas to surface forms
+            words: Dictionary mapping lemmas to surface forms
             
         Returns:
             List of dictionaries with lemma, surface_forms, and count
         """
         results = []
         
-        for lemma, surface_forms in nouns.items():
+        for lemma, surface_forms in words.items():
             results.append({
                 "lemma": lemma,
                 "surface_forms": surface_forms,
@@ -194,10 +199,10 @@ class NLPService:
 
 
 # Register custom spaCy pipeline component
-@spacy.Language.component("filter_nouns")
-def filter_nouns_component(doc):
+@Language.component("filter_words")
+def filter_words_component(doc):
     """
-    Custom spaCy pipeline component for noun filtering.
+    Custom spaCy pipeline component for word filtering.
     This component doesn't modify the doc but provides a hook for custom processing.
     """
     return doc 

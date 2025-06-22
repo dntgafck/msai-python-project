@@ -147,13 +147,13 @@ def process_text_and_generate_definitions(text: str):
         word_repo = WordRepository(db_connection)
         definition_repo = DefinitionRepository(db_connection)
         
-        # Process text to get Dutch nouns
+        # Process text to get Dutch words
         logger.info("Processing text with NLP service...")
         results = nlp_service.process_text(text)
         logger.info(f"NLP processing completed. Found {len(results) if results else 0} results")
         
         if not results:
-            logger.info("No Dutch nouns found in text")
+            logger.info("No Dutch words found in text")
             return []
         
         # Get lemmas from results
@@ -370,7 +370,7 @@ def main():
                             display_word_with_definition(definition)
                     else:
                         logger.info("No definitions returned from processing")
-                        st.info("No Dutch nouns found in the text or error occurred.")
+                        st.info("No Dutch words found in the text or error occurred.")
             else:
                 logger.info("User clicked process button but no text provided")
                 st.warning("Please enter some Dutch text to process.")

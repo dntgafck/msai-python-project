@@ -386,12 +386,12 @@ class VocabularyService:
         """
         from services.nlp_service import NLPService
         
-        # Extract Dutch nouns from text
+        # Extract Dutch words from text
         nlp_service = NLPService()
         results = nlp_service.process_text(text)
         
         if not results:
-            raise ValueError("No Dutch nouns found in text")
+            raise ValueError("No Dutch words found in text")
         
         # Get lemmas
         lemmas = [result['lemma'] for result in results]

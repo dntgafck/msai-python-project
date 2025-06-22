@@ -188,7 +188,7 @@ dutch_text = "De computer verwerkt complexe algoritmes."
 known_words = {"computer", "algoritme"}
 
 results = nlp_service.process_text(dutch_text, known_words)
-print(f"Found {len(results)} unfamiliar Dutch nouns")
+print(f"Found {len(results)} unfamiliar Dutch words")
 ```
 
 ### AI Definition Service (No Database)
