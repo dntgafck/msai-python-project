@@ -1,32 +1,28 @@
-# Dutch Language Learning Service
+# Dutch Language Learning System
 
-A Python application for Dutch language learning that extracts unfamiliar Dutch nouns from text and generates English definitions with Dutch examples and translations. The system combines natural language processing with AI-powered definition generation and database persistence.
+A Python application for Dutch language learning that extracts unfamiliar Dutch words from text and generates English definitions with Dutch examples and translations. The system combines natural language processing with AI-powered definition generation and database persistence.
 
 ## Features
 
-- **Dutch NLP Processing**: Extracts unfamiliar Dutch nouns using spaCy's Dutch model
-- **AI Definition Generation**: Uses OpenAI to generate English definitions for Dutch words
-- **Dutch Examples with Translations**: Provides Dutch example sentences with English translations
-- **Semantic Categories**: Includes relevant categories for each word
-- **Database Persistence**: SQLite-based storage for words and definitions
-- **Web Interface**: User-friendly Streamlit frontend for interactive usage
-- **REST API**: FastAPI-based API for programmatic access
-- **Batch Processing**: Efficient AI API usage with configurable batch sizes
-- **Structured Output**: Uses OpenAI's structured output with Pydantic models
-- **Pure Components**: Standalone services without database dependencies
-- **Docker Support**: Complete containerization with spaCy model verification
+- **Dutch NLP Processing**: Extracts unfamiliar Dutch words using spaCy's Dutch model
+- **AI Definition Generation**: Uses OpenAI to generate English definitions with Dutch examples
+- **Database Persistence**: Stores words and definitions in SQLite database
+- **Vocabulary Management**: Create and manage vocabulary decks with Anki export
+- **REST API**: Full API for programmatic access
+- **Web Interface**: Streamlit-based user interface
+- **Docker Support**: Containerized deployment with automatic spaCy model installation
 
 ## Project Structure
 
 ```
 msai-python-project/
-├── api/                    # REST API interface
+├── api/                   # REST API
 │   ├── __init__.py
-│   └── rest_api.py        # FastAPI implementation
+│   └── rest_api.py
 ├── database/              # Database layer
 │   ├── __init__.py
-│   ├── connection.py      # Database connection management
-│   └── schema.py          # Database schema and table creation
+│   ├── connection.py
+│   └── schema.py
 ├── models/                # Data models
 │   ├── __init__.py
 │   └── entities.py        # Dataclass entities
@@ -75,12 +71,7 @@ msai-python-project/
    python -m spacy download nl_core_news_lg
    ```
 
-5. **Verify spaCy installation** (optional but recommended):
-   ```bash
-   python verify_spacy.py
-   ```
-
-6. **Set up OpenAI API key**:
+5. **Set up OpenAI API key**:
    ```bash
    export OPENAI_API_KEY='your-api-key-here'
    ```
@@ -103,19 +94,12 @@ The easiest way to run the application is using Docker, which automatically hand
 
 3. **Deploy with Docker**:
    ```bash
-   # Make the deployment script executable
-   chmod +x deploy.sh
+   # Build the Docker image
+   docker build -t dutch-learning-app .
    
-   # Run the deployment script
-   ./deploy.sh
+   # Run with docker-compose
+   docker-compose up -d
    ```
-
-   The deployment script will:
-   - Build the Docker image
-   - Verify spaCy model installation
-   - Start the application
-   - Perform health checks
-   - Provide access information
 
 4. **Access the application**:
    - Web interface: http://localhost:8501
@@ -170,7 +154,7 @@ streamlit run streamlit_app.py
 ```
 
 The web interface provides:
-- **Text Processing**: Upload or paste Dutch text to extract unfamiliar nouns
+- **Text Processing**: Upload or paste Dutch text to extract unfamiliar words
 - **AI Features**: Generate definitions for Dutch words
 - **Vocabulary Management**: Browse and search your stored vocabulary
 - **Interactive UI**: User-friendly interface with real-time feedback
@@ -249,7 +233,7 @@ for definition in definitions:
 The Streamlit frontend provides an intuitive web interface for all features:
 
 **Features**:
-- **Text Processing Tab**: Process Dutch text and extract unfamiliar nouns
+- **Text Processing Tab**: Process Dutch text and extract unfamiliar words
 - **Vocabulary Tab**: Browse and search stored words and definitions
 - **Vocabulary Decks Tab**: Create and manage vocabulary decks with Anki export
 
@@ -323,7 +307,7 @@ uvicorn api.rest_api:app --host 0.0.0.0 --port 8000 --reload
 
 **Available Endpoints**:
 
-- `POST /process` - Process Dutch text and return unfamiliar nouns
+- `POST /process` - Process Dutch text and return unfamiliar words
 - `POST /generate-definitions` - Generate English definitions for Dutch words
 - `GET /health` - Health check
 - `GET /docs` - Interactive API documentation
@@ -428,12 +412,6 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 ```
 
-Or use the debug script:
-
-```bash
-python debug_ai_response.py
-```
-
 ## Contributing
 
 1. Fork the repository
@@ -450,7 +428,7 @@ The application currently operates as a single-user demo system with hardcoded `
 
 - **User Authentication**: Add login/register functionality using the existing `User` entity and `UserRepository`
 - **Multi-User Support**: Enable multiple users to have their own vocabulary decks and known words
-- **User-Specific Known Words**: Implement persistent storage of user's known words using the prepared `user_known_word` table structure
+- **User-Specific Known Words**: Implement persistent storage of user's known words
 - **User Profiles**: Add user profile management with preferences and learning statistics
 - **Session Management**: Implement proper session handling and user state persistence
 - **Access Control**: Add role-based access control for different user types (students, teachers, etc.)
