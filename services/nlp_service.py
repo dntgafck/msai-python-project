@@ -191,51 +191,6 @@ class NLPService:
         
         # Sort by count (descending) then alphabetically
         return sorted(results, key=lambda x: (-x["count"], x["lemma"]))
-    
-    def get_lemmas_only(self, text: str, known_words: Optional[Set[str]] = None) -> List[str]:
-        """
-        Process Dutch text and return only the lemmas of unfamiliar nouns.
-        
-        Args:
-            text: Dutch text to process
-            known_words: Set of known words to filter out (optional)
-            
-        Returns:
-            List of lemmas (strings)
-        """
-        results = self.process_text(text, known_words)
-        return [result["lemma"] for result in results]
-    
-    def get_surface_forms_only(self, text: str, known_words: Optional[Set[str]] = None) -> List[str]:
-        """
-        Process Dutch text and return all surface forms of unfamiliar nouns.
-        
-        Args:
-            text: Dutch text to process
-            known_words: Set of known words to filter out (optional)
-            
-        Returns:
-            List of surface forms (strings)
-        """
-        results = self.process_text(text, known_words)
-        surface_forms = []
-        for result in results:
-            surface_forms.extend(result["surface_forms"])
-        return surface_forms
-    
-    def get_word_frequency(self, text: str, known_words: Optional[Set[str]] = None) -> Dict[str, int]:
-        """
-        Process Dutch text and return frequency count of unfamiliar noun lemmas.
-        
-        Args:
-            text: Dutch text to process
-            known_words: Set of known words to filter out (optional)
-            
-        Returns:
-            Dictionary mapping lemmas to their frequency count
-        """
-        results = self.process_text(text, known_words)
-        return {result["lemma"]: result["count"] for result in results}
 
 
 # Register custom spaCy pipeline component

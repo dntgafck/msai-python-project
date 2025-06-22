@@ -58,24 +58,6 @@ class ProcessTextResponse(BaseModel):
     text_length: int = Field(..., description="Length of processed text")
 
 
-class LemmasResponse(BaseModel):
-    lemmas: List[str] = Field(..., description="List of Dutch lemmas")
-    total_count: int = Field(..., description="Total number of lemmas found")
-    text_length: int = Field(..., description="Length of processed text")
-
-
-class SurfaceFormsResponse(BaseModel):
-    surface_forms: List[str] = Field(..., description="List of surface forms")
-    total_count: int = Field(..., description="Total number of surface forms found")
-    text_length: int = Field(..., description="Length of processed text")
-
-
-class FrequencyResponse(BaseModel):
-    frequencies: Dict[str, int] = Field(..., description="Lemma to frequency mapping")
-    total_count: int = Field(..., description="Total number of unique lemmas found")
-    text_length: int = Field(..., description="Length of processed text")
-
-
 class GenerateDefinitionsResponse(BaseModel):
     definitions: List[Definition] = Field(..., description="List of definitions")
     total_count: int = Field(..., description="Total number of definitions")
@@ -86,12 +68,6 @@ class HealthResponse(BaseModel):
     service: str = Field(..., description="Service name")
     nlp_model: str = Field(..., description="spaCy model name")
     ai_model: str = Field(..., description="OpenAI model name")
-
-
-class StatsResponse(BaseModel):
-    nlp_model_name: str = Field(..., description="spaCy model name")
-    ai_model_name: str = Field(..., description="OpenAI model name")
-    service_status: str = Field(..., description="Service status")
 
 
 def get_nlp_service() -> NLPService:
@@ -176,102 +152,6 @@ async def process_text(request: ProcessTextRequest):
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
-@app.post("/lemmas", response_model=LemmasResponse, tags=["Processing"])
-async def get_lemmas(request: ProcessTextRequest):
-    """
-    Process Dutch text and return only the lemmas of unfamiliar nouns.
-    
-    Similar to /process but returns only the base forms of words.
-    Useful for applications that need just the lemmas.
-    """
-    try:
-        if not request.text.strip():
-            raise HTTPException(status_code=400, detail="Text cannot be empty")
-        
-        # Get or create NLP service
-        nlp_service = get_nlp_service()
-        
-        # Convert known words to set if provided
-        known_words = set(request.known_words) if request.known_words else None
-        
-        # Process text
-        lemmas = nlp_service.get_lemmas_only(request.text, known_words)
-        
-        return LemmasResponse(
-            lemmas=lemmas,
-            total_count=len(lemmas),
-            text_length=len(request.text)
-        )
-        
-    except Exception as e:
-        logger.error(f"Error processing text: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-
-@app.post("/surface-forms", response_model=SurfaceFormsResponse, tags=["Processing"])
-async def get_surface_forms(request: ProcessTextRequest):
-    """
-    Process Dutch text and return all surface forms of unfamiliar nouns.
-    
-    Returns all the actual word forms found in the text, not just the base lemmas.
-    Useful for highlighting or exact matching in the original text.
-    """
-    try:
-        if not request.text.strip():
-            raise HTTPException(status_code=400, detail="Text cannot be empty")
-        
-        # Get or create NLP service
-        nlp_service = get_nlp_service()
-        
-        # Convert known words to set if provided
-        known_words = set(request.known_words) if request.known_words else None
-        
-        # Process text
-        surface_forms = nlp_service.get_surface_forms_only(request.text, known_words)
-        
-        return SurfaceFormsResponse(
-            surface_forms=surface_forms,
-            total_count=len(surface_forms),
-            text_length=len(request.text)
-        )
-        
-    except Exception as e:
-        logger.error(f"Error processing text: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-
-@app.post("/frequency", response_model=FrequencyResponse, tags=["Processing"])
-async def get_frequency(request: ProcessTextRequest):
-    """
-    Process Dutch text and return frequency count of unfamiliar noun lemmas.
-    
-    Returns a mapping of lemmas to their frequency count in the text.
-    Useful for understanding which words appear most often.
-    """
-    try:
-        if not request.text.strip():
-            raise HTTPException(status_code=400, detail="Text cannot be empty")
-        
-        # Get or create NLP service
-        nlp_service = get_nlp_service()
-        
-        # Convert known words to set if provided
-        known_words = set(request.known_words) if request.known_words else None
-        
-        # Process text
-        frequencies = nlp_service.get_word_frequency(request.text, known_words)
-        
-        return FrequencyResponse(
-            frequencies=frequencies,
-            total_count=len(frequencies),
-            text_length=len(request.text)
-        )
-        
-    except Exception as e:
-        logger.error(f"Error processing text: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-
 @app.post("/generate-definitions", response_model=GenerateDefinitionsResponse, tags=["AI"])
 async def generate_definitions(request: GenerateDefinitionsRequest):
     """
@@ -317,24 +197,6 @@ async def generate_definitions(request: GenerateDefinitionsRequest):
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
-@app.get("/stats", response_model=StatsResponse, tags=["Statistics"])
-async def get_stats():
-    """Get service statistics and information."""
-    try:
-        nlp_service = get_nlp_service()
-        ai_service = get_ai_service()
-        
-        return StatsResponse(
-            nlp_model_name=nlp_service.model_name,
-            ai_model_name=ai_service.model,
-            service_status="running"
-        )
-        
-    except Exception as e:
-        logger.error(f"Error getting stats: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-
 @app.get("/", tags=["Root"])
 async def root():
     """Root endpoint with API information."""
@@ -345,11 +207,7 @@ async def root():
         "health": "/health",
         "endpoints": {
             "process": "POST /process",
-            "lemmas": "POST /lemmas",
-            "surface_forms": "POST /surface-forms",
-            "frequency": "POST /frequency",
             "generate_definitions": "POST /generate-definitions",
-            "stats": "GET /stats",
             "health": "GET /health"
         },
         "language": "Dutch",
