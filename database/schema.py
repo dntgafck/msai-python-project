@@ -33,13 +33,6 @@ def create_tables(db_connection: DatabaseConnection):
         )
         """,
         """
-        CREATE TABLE IF NOT EXISTS user_known_word (
-            user_id INTEGER,
-            word_id INTEGER,
-            PRIMARY KEY (user_id, word_id)
-        )
-        """,
-        """
         CREATE TABLE IF NOT EXISTS vocabulary_deck (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id     INTEGER NOT NULL,
@@ -72,10 +65,6 @@ def create_tables(db_connection: DatabaseConnection):
         "CREATE INDEX IF NOT EXISTS idx_definition_word_id ON definition(word_id)",
         "CREATE INDEX IF NOT EXISTS idx_definition_created_at ON definition(created_at)",
         
-        # User known word indexes
-        "CREATE INDEX IF NOT EXISTS idx_user_known_word_user_id ON user_known_word(user_id)",
-        "CREATE INDEX IF NOT EXISTS idx_user_known_word_word_id ON user_known_word(word_id)",
-        
         # Vocabulary deck indexes
         "CREATE INDEX IF NOT EXISTS idx_vocabulary_deck_user_id ON vocabulary_deck(user_id)",
         "CREATE INDEX IF NOT EXISTS idx_vocabulary_deck_created_at ON vocabulary_deck(created_at)",
@@ -105,7 +94,6 @@ def drop_tables(db_connection: DatabaseConnection):
     tables = [
         'vocabulary_deck_word',
         'vocabulary_deck',
-        'user_known_word',
         'definition',
         'word',
         'user'
@@ -124,8 +112,6 @@ def drop_indexes(db_connection: DatabaseConnection):
         'idx_word_lemma_language',
         'idx_definition_word_id',
         'idx_definition_created_at',
-        'idx_user_known_word_user_id',
-        'idx_user_known_word_word_id',
         'idx_vocabulary_deck_user_id',
         'idx_vocabulary_deck_created_at',
         'idx_vocabulary_deck_word_deck_id',

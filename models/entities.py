@@ -74,20 +74,6 @@ class Definition:
 
 
 @dataclass
-class UserKnownWord:
-    user_id: int = 0
-    word_id: int = 0
-    
-    @classmethod
-    def from_row(cls, row):
-        """Create UserKnownWord instance from database row."""
-        return cls(
-            user_id=row['user_id'],
-            word_id=row['word_id']
-        )
-
-
-@dataclass
 class VocabularyDeck:
     id: Optional[int] = None
     user_id: int = 0

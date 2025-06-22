@@ -35,8 +35,7 @@ msai-python-project/
 │   ├── user_repository.py
 │   ├── word_repository.py
 │   ├── definition_repository.py
-│   ├── vocabulary_repository.py
-│   └── user_known_word_repository.py
+│   └── vocabulary_repository.py
 ├── services/              # Business logic
 │   ├── __init__.py
 │   ├── nlp_service.py     # Dutch NLP service
@@ -442,6 +441,27 @@ python debug_ai_response.py
 3. Make your changes
 4. Add tests if applicable
 5. Submit a pull request
+
+## TODO
+
+### User Management Features
+
+The application currently operates as a single-user demo system with hardcoded `user_id = 1`. Future enhancements could include:
+
+- **User Authentication**: Add login/register functionality using the existing `User` entity and `UserRepository`
+- **Multi-User Support**: Enable multiple users to have their own vocabulary decks and known words
+- **User-Specific Known Words**: Implement persistent storage of user's known words using the prepared `user_known_word` table structure
+- **User Profiles**: Add user profile management with preferences and learning statistics
+- **Session Management**: Implement proper session handling and user state persistence
+- **Access Control**: Add role-based access control for different user types (students, teachers, etc.)
+
+### Technical Implementation Notes
+
+The infrastructure for user management is already prepared:
+- `User` entity in `models/entities.py`
+- `UserRepository` in `repositories/user_repository.py`
+- `user` table schema in `database/schema.py`
+- Foreign key relationships in `vocabulary_deck` table
 
 ## License
 
